@@ -1,0 +1,9 @@
+Options -Indexes
+RewriteEngine On
+RewriteRule ^$ public/ [R=302,L]
+RewriteRule ^(?:app|database|docs|scripts|tests|vendor|var|releases)(?:/|$) - [F,L,NC]
+RewriteRule ^config.*\.php$ - [F,L,NC]
+RewriteRule ^(?:AGENTS\.md|README\.md|SETUP-XAMPP\.md|CHANGELOG\.md|RELEASE-MANIFEST\.json)$ - [F,L,NC]
+<FilesMatch "(^\.|\.sql$|\.zip$)">
+    Require all denied
+</FilesMatch>
