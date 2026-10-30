@@ -8,7 +8,7 @@ function first_owner_import_sql(string $username,string $name,string $password):
     return "-- PRIVATE FIRST-OWNER IMPORT. Select the LIVE grocery database in phpMyAdmin.\n"
         ."-- Import once after the hosting schema. Contains a password hash; keep private.\n"
         ."-- Does nothing when any account already exists. No existing records are changed.\n"
-        ."START TRANSACTION;\nSELECT id FROM roles WHERE role_name='Owner' FOR UPDATE;\n"
+        ."START TRANSACTION;\nSELECT id INTO @grocery_owner_role_id FROM roles WHERE role_name='Owner' LIMIT 1 FOR UPDATE;\n"
         ."INSERT INTO users (role_id,full_name,username,password_hash) SELECT r.id,$values FROM roles r WHERE r.role_name='Owner' AND NOT EXISTS (SELECT 1 FROM users) LIMIT 1;\n"
         ."SET @grocery_owner_created=ROW_COUNT();\n"
         ."INSERT INTO activity_logs (user_id,action,record_type,record_id,description) SELECT id,'BOOTSTRAP','users',id,'First owner created through private hosting import' FROM users WHERE id=LAST_INSERT_ID() AND @grocery_owner_created=1;\nCOMMIT;\n";

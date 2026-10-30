@@ -27,6 +27,13 @@ try {
     $password='LiveTestPassword!2026'; $name="Owner's \\ Store";
     $ownerSql=first_owner_import_sql('live_owner',$name,$password);
     hosting_check(!str_contains($ownerSql,$password),'Private owner import contains a password hash, not the password');
+    preg_match('/SELECT id INTO @grocery_owner_role_id[^;]+;/',$ownerSql,$lockSql);
+    if(!$lockSql) throw new RuntimeException('Owner lock query is missing.');
+    db()->beginTransaction();
+    $lock=db()->query($lockSql[0]);
+    hosting_check($lock->columnCount()===0,'Owner lock produces no result grid for phpMyAdmin to paginate');
+    $lock->closeCursor();
+    db()->commit();
     hosting_import(db(),$ownerSql);
     $owner=one('SELECT * FROM users WHERE username=?',['live_owner']);
     hosting_check($owner&&$owner['full_name']===$name&&password_verify($password,$owner['password_hash']),'Private SQL initializes the chosen owner without remote CLI access');

@@ -40,6 +40,8 @@ Choose a new live username, full name, and strong password (12-72 characters). T
 
 The command creates **`var/deployment/first-owner.sql`**, containing the chosen password's hash. Import that private file through the hosting phpMyAdmin while the live grocery database is selected. Keep it out of the public hosting directory and GitHub. The file is ignored by Git and excluded from release ZIPs. The SQL only creates an owner when the users table is empty; repeating it cannot add accounts to an existing installation.
 
+If an older export shows a successful import followed by error 1064 near `FOR UPDATE LIMIT 0, 25`, first open `users` → Browse. The owner may already have been created; if present, continue with that account. Do not reset the database. The updated exporter uses a lock query without a result grid. If `users` is empty, edit the old private SQL file by replacing `SELECT id FROM roles WHERE role_name='Owner' FOR UPDATE;` with `SELECT id INTO @grocery_owner_role_id FROM roles WHERE role_name='Owner' LIMIT 1 FOR UPDATE;`, then reimport only that private owner SQL file. No schema reimport is required.
+
 ## 5. Upload the source
 
 Extract `SmallGrocery-Latest.zip` locally. Use the hosting file manager or FTP to upload the contents of its `SmallGrocery` folder into the website's `htdocs` directory. Include the root `.htaccess` and the `public`, `app`, and `vendor` directories. Keep the relative layout intact. Do not upload the local `var`, `.git`, `releases`, private owner SQL, or database backups.

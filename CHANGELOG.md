@@ -1,5 +1,11 @@
 # System changes
 
+## October 30, 2026 — phpMyAdmin first-owner import fix
+
+- Changed the owner-role lock query to SELECT INTO a session variable with LIMIT before FOR UPDATE. It produces no result grid for phpMyAdmin to paginate.
+- Added a database check for the result-free lock and retained checks that first-owner import is repeat-safe and preserves existing accounts.
+- Existing schemas need no migration. If the owner already exists after an older import, no SQL reimport is needed; otherwise correct or regenerate only the private owner SQL.
+
 ## October 30, 2026 — Domain-specific deployment guide
 
 - Updated the hosting guide for ciditipi.free.je with the public login/registration paths and complete placeholder configuration.
