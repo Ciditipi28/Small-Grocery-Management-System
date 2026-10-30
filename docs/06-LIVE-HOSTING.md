@@ -1,6 +1,6 @@
 # Free live hosting and working email OTP
 
-Prepared October 30, 2026. **Status: prepared for deployment, not deployed.** No hosting account/domain or live database has been provided. The inspected local configuration has no Gmail sender credentials. A passing local SMTP fixture is not proof of real Gmail delivery.
+Prepared October 30, 2026. **Status: prepared for deployment; live deployment has not been verified.** The user supplied the domain **ciditipi.free.je**. Live database settings and server-side Gmail credentials still need configuration. A passing local SMTP fixture is not proof of real Gmail delivery.
 
 ## Selected free option
 
@@ -18,7 +18,7 @@ The public site address is safe to share in this chat so the registration link c
 
 ## 2. Enable SSL
 
-Use the provider's SSL tools and wait until your chosen `https://` address opens without a certificate error. Do not enable the production configuration before SSL works.
+Open **https://ciditipi.free.je**. InfinityFree's current documentation says free subdomains are automatically covered by a system SSL certificate and do not need a custom certificate: [official HTTPS guide](https://forum.infinityfree.com/t/how-to-get-free-ssl-https-on-infinityfree/49323). Wait until this HTTPS address opens without a certificate error before enabling the production configuration. A newly assigned address may still need time to become available.
 
 ## 3. Create the live database
 
@@ -44,7 +44,7 @@ The command creates **`var/deployment/first-owner.sql`**, containing the chosen 
 
 Extract `SmallGrocery-Latest.zip` locally. Use the hosting file manager or FTP to upload the contents of its `SmallGrocery` folder into the website's `htdocs` directory. Include the root `.htaccess` and the `public`, `app`, and `vendor` directories. Keep the relative layout intact. Do not upload the local `var`, `.git`, `releases`, private owner SQL, or database backups.
 
-The entry address in this layout is **`https://YOUR-SUBDOMAIN/public/`**. The root `.htaccess` redirects the website root there and denies direct access to private project directories. Before adding credentials, verify that requesting `/database/schema.sql`, `/app/functions.php`, and `/config.php` returns a denial, not file contents. If a host ignores `.htaccess`, place private directories outside the web root or configure a document root pointing to `public` before proceeding.
+The entry address in this layout is **https://ciditipi.free.je/public/**. Upload the contents inside the extracted `SmallGrocery` folder directly into `htdocs`, so `public` is directly inside `htdocs`. The root `.htaccess` redirects the website root there and denies direct access to private project directories. Before adding credentials, verify that requesting `/database/schema.sql`, `/app/functions.php`, and `/config.php` returns a denial, not file contents. If a host ignores `.htaccess`, place private directories outside the web root or configure a document root pointing to `public` before proceeding.
 
 ## 6. Set the hosting configuration
 
@@ -53,10 +53,36 @@ On the hosting server, copy **`config.hosting.example.php`** to **`config.local.
 For the upload layout above, the registration URL is:
 
 ```text
-https://YOUR-ACTUAL-SUBDOMAIN/public/index.php?page=register
+https://ciditipi.free.je/public/index.php?page=register
 ```
 
 `require_https` enables canonical HTTPS redirects and secure session cookies. If the provider terminates HTTPS through a proxy, its PHP HTTPS detection must be checked on the actual server. Do not bypass certificate checks or trust arbitrary client-supplied forwarded headers to fix a redirect problem.
+
+The complete hosting file can look like this after you replace the uppercase placeholders privately. Keep the quote marks and commas. This file belongs on the server, not in GitHub or this chat:
+
+```php
+<?php
+return [
+    'db_host' => 'COPY_MYSQL_HOSTNAME_HERE',
+    'db_port' => 3306,
+    'db_name' => 'COPY_FULL_DATABASE_NAME_HERE',
+    'db_user' => 'COPY_MYSQL_USERNAME_HERE',
+    'db_password' => 'COPY_MYSQL_PASSWORD_HERE',
+    'store_name' => 'Neighborhood Mini Grocery',
+    'timezone' => 'Asia/Manila',
+    'currency' => '',
+    'require_https' => true,
+    'mail_smtp_host' => 'smtp.gmail.com',
+    'mail_smtp_port' => 587,
+    'mail_smtp_security' => 'tls',
+    'mail_smtp_username' => 'YOUR-SENDER@gmail.com',
+    'mail_smtp_password' => 'PASTE_16_CHARACTER_APP_PASSWORD',
+    'mail_from' => 'YOUR-SENDER@gmail.com',
+    'registration_url' => 'https://ciditipi.free.je/public/index.php?page=register',
+];
+```
+
+The MySQL password, website owner password, and Gmail App Password are different credentials. Use each only in its matching field. Do not carry over localhost/3307/XAMPP credentials to the hosting configuration.
 
 ## 7. Configure Gmail on the server
 

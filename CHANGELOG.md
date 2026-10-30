@@ -1,5 +1,11 @@
 # System changes
 
+## October 30, 2026 — Domain-specific deployment guide
+
+- Updated the hosting guide for ciditipi.free.je with the public login/registration paths and complete placeholder configuration.
+- Clarified current automatic SSL coverage for InfinityFree free subdomains and kept live deployment/OTP verification marked pending.
+- Documentation-only update; no database migration or repeat schema import is required.
+
 ## October 30, 2026 — Free hosting preparation
 
 - Identified InfinityFree as a compatible free PHP/MySQL hosting candidate with external Gmail SMTP support; account creation, hosting configuration, and real delivery verification remain pending.
