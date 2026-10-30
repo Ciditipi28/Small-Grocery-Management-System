@@ -1,5 +1,15 @@
 # System changes
 
+## October 30, 2026 — Interface redesign and appearance toggle
+
+- Replaced the large promotional banners with a compact store workspace, grouped icon navigation, quieter typography, and consistent forms/tables.
+- Added light and dark mode across login, email registration, and authenticated pages, with remembered browser preference and system fallback before first paint.
+- Added a mobile navigation drawer with focus handling, password visibility controls, and stacked transaction lines for smaller screens.
+- Updated the dashboard with a shared sales/refunds chart scale, exact daily figures, stock alerts, and recent deliveries. Reports use consistent panels; financial labels and role scopes are preserved.
+- Kept HTTP error statuses intact with the larger templates and replaced the local-only database error wording.
+- Verified theme behavior, PHP syntax, page rendering/access, and browser checkout totals. Updated source/htdocs ZIPs exclude private configuration.
+- No database import or migration is required. Upload app/ and public/ while preserving server config.local.php. See docs/07-UI-UPDATE.md.
+
 ## October 30, 2026 — Direct htdocs upload package
 
 - Added `SmallGrocery-htdocs.zip` with application folders and `.htaccess` directly at the ZIP root, without an extra project-folder wrapper.

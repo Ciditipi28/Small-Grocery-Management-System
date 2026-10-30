@@ -1,5 +1,7 @@
 <?php
 declare(strict_types=1);
+// Keep response headers/status editable until the shared layout and page finish rendering.
+ob_start();
 require dirname(__DIR__).'/app/bootstrap.php';
 require dirname(__DIR__).'/app/masters.php';
 require dirname(__DIR__).'/app/views.php';
@@ -42,7 +44,7 @@ try {
   throw new DomainException('Unknown action.');
  }
 } catch(DomainException $ex) { $error=$ex->getMessage(); }
-catch(PDOException $ex) { error_log($ex->getMessage()); $error=$ex->getCode()==='23000'?'A code or username already exists, or a related record is invalid.':'Database unavailable. Start MySQL and follow the installation guide in docs/03-RUNNING-THE-SYSTEM.md.'; }
+catch(PDOException $ex) { error_log($ex->getMessage()); $error=$ex->getCode()==='23000'?'A code or username already exists, or a related record is invalid.':'The store database is unavailable. Ask the owner to check the connection settings, then try again.'; }
 catch(Throwable $ex) { error_log($ex->getMessage()); $error='The request could not be completed. Check the application error log.'; }
 if(!$user) { if($page==='register') registration_view($error); else login_view($error); exit; }
 $title=page_title($page); layout_start($title,$user);

@@ -1,5 +1,7 @@
 # Put the system in VS Code and phpMyAdmin
 
+For the light/dark interface update, follow [UI update instructions](docs/07-UI-UPDATE.md). Replace the application/public files and preserve config.local.php; no SQL import is needed.
+
 For a free online server, use [the live-hosting guide](docs/06-LIVE-HOSTING.md), `config.hosting.example.php`, and `mini_grocery_hosting_schema.sql`. The XAMPP instructions below configure this computer only.
 
 ## Files to use

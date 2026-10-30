@@ -10,6 +10,7 @@ The 12 hosting-preparation checks, 27 registration checks with local SMTP, relea
 
 ## Implemented
 
+- Redesigned shared interface with grouped navigation, responsive transaction forms, and a remembered light/dark toggle on login, registration, and signed-in pages. The sales/refunds chart now shares one scale and includes exact figures; recent receiving information is shown on the owner dashboard. See `07-UI-UPDATE.md` for upload instructions; no database migration is needed.
 - Sixteen InnoDB tables (original 15 plus account invitations) with primary/foreign keys, unique document numbers, decimal money, positive-quantity/nonnegative-stock constraints, and historical sale price/name/SKU values.
 - Owner-invited, email-verified staff creation with Gmail SMTP support, expiry, attempt/send limits, resend/revocation, and single-use code consumption. Existing logins are preserved. Real Gmail delivery awaits local sender configuration; see the Gmail OTP setup guide.
 - One integrated password-hashed login, current-account/role checks, regenerated sessions, CSRF protection, escaped output, prepared SQL, local session login throttling, and logout.
@@ -36,7 +37,7 @@ The existing 20 planned functions have routes in this build; some shared PHP vie
 - Full dictionary, revised ERD matching the implemented column names, formal diagrams, and complete submission documentation. The original handoff remains an unchanged historical design source.
 - Inspection and adaptation of the actual instructor-supplied authentication if it becomes available. No such files were supplied in this project; the current login is the application's single authentication system.
 - Draft saving/cancellation, a general posted-document correction/reversal policy, and its implementation. Current schema supports posted documents only; it will need a migration when those lifecycle features are designed.
-- More detailed report filters/exports, fuller receiving dashboard information, and a consistent comparison scale plus plotted refunds on the chart. The current chart uses per-day meter scales and numeric refund labels.
+- More detailed report filters/exports and broader print/accessibility review. Recent receiving and a common-scale sales/refunds chart are now implemented.
 - Integration of an appropriate CSS framework if the instructor requires it; the current interface uses custom CSS.
 - Database backup/restore, restart/persistence checks, broader mobile/print/browser review, accessibility refinement, and end-to-end XAMPP Apache demonstration.
 - Deployment hardening and broader authentication abuse protections before internet hosting. This build is a local school-project preview.

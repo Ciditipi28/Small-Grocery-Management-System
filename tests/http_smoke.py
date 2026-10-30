@@ -17,8 +17,18 @@ def get(page):
 def token(html):
     return re.search(r'name="csrf" value="([a-f0-9]+)"', html).group(1)
 
+def theme_assets(html):
+    assert re.search(r'<script src="assets/theme\.js\?v=[a-f0-9]+"></script>',html)
+    assert html.index('assets/theme.js') < html.index('assets/app.css')
+    assert re.search(r'<script src="assets/app\.js\?v=[a-f0-9]+" defer>',html)
+    assert 'data-theme-toggle' in html
+
 login = get('page=products')
 assert 'Sign in to your store' in login
+theme_assets(login)
+registration=get('page=register')
+assert 'Create your staff account' in registration
+theme_assets(registration)
 try:
     opener.open(Request(base + '?page=login', urlencode({'action': 'login', 'username': access['Username'], 'password': access['Password'], 'csrf': 'invalid'}).encode()))
 except HTTPError:
@@ -35,6 +45,7 @@ for page in pages:
     html = get('page=' + page)
     assert 'Unable to load this page' not in html, page
     assert 'Sign in to your store' not in html, page
+    theme_assets(html)
     print('PASS authenticated page:', page)
 html = get('page=users&q=smoke_cashier')
 match = re.search(r'edit=(\d+)',html)

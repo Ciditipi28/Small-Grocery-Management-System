@@ -1,16 +1,86 @@
 <?php
+require_once __DIR__.'/ui.php';
 function page_title(string $p): string { return (masters()[$p][0]??null) ?: (['dashboard'=>'Overview','history'=>document_types()[$_GET['type']??'sale'][3]??'History','new'=>document_types()[$_GET['type']??'sale'][4]??'New Transaction','detail'=>document_types()[$_GET['type']??'sale'][5]??'Details','stock'=>'Stock on Hand','movements'=>'Stock Movement History','reports'=>'Reports','activity'=>'Activity History'][$p]??'Page not found'); }
 function login_view(?string $error): void {
  global $config;
- ?><!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sign in · Grocery</title><link rel="stylesheet" href="assets/app.css"></head><body class="login"><main class="login-grid"><section class="welcome"><div class="brand">▦ GROCERY</div><p class="eyebrow">YOUR STORE, CONNECTED</p><h1>A clearer picture<br>of every shelf.</h1><p>Inventory, sales, and daily operations.<br>One place to keep your shop moving.</p><div class="welcome-note">Built for the everyday neighborhood store.</div></section><section class="login-card"><p class="eyebrow">WELCOME BACK</p><h2>Sign in to your store</h2><p class="muted"><?=e($config['store_name'])?></p><?php registration_notice(); if($error) echo '<div class="alert error" role="alert">'.e($error).'</div>'; ?><form method="post" action="index.php"><?=csrf()?><input type="hidden" name="action" value="login"><label>Username<input name="username" required maxlength="60" autocomplete="username" value="<?=e($_POST['username']??'')?>"></label><label>Password<input name="password" type="password" required autocomplete="current-password"></label><button class="button wide">Sign in →</button></form><small class="muted">New staff member? <a href="<?=e(url('register'))?>">Create an account with your email code</a>.</small></section></main></body></html><?php
+ ?><!doctype html><html lang="en"><head><?php ui_head('Sign in'); ?></head><body class="auth-page">
+ <?php auth_header(); ?>
+ <main class="auth-layout">
+  <section class="auth-aside" aria-label="Store information">
+   <span class="auth-store-caption">THE STORE WORKSPACE</span>
+   <h2 class="auth-store-name"><?=e($config['store_name'])?></h2>
+   <?php shelf_illustration(); ?>
+   <div class="auth-features"><span><?=ui_icon('receipt')?>Sales</span><span><?=ui_icon('box')?>Inventory</span><span><?=ui_icon('truck')?>Receiving</span></div>
+   <p class="auth-aside-note">Your daily records, from the first delivery to the last receipt.</p>
+  </section>
+  <section class="auth-form-area"><div class="auth-form-card">
+   <p class="eyebrow">STAFF ACCESS</p><h1>Sign in to your store</h1><p class="muted">Use your staff account to continue.</p>
+   <?php registration_notice(); if($error) echo '<div class="alert error" role="alert">'.e($error).'</div>'; ?>
+   <form method="post" action="index.php">
+    <?=csrf()?><input type="hidden" name="action" value="login">
+    <label for="login-username">Username<input id="login-username" name="username" required maxlength="60" autocomplete="username" placeholder="Enter your username" value="<?=e($_POST['username']??'')?>"></label>
+    <?php password_field('password','Password','login-password','current-password'); ?>
+    <button class="button wide" type="submit">Sign in <?=ui_icon('arrow')?></button>
+   </form>
+   <div class="auth-form-footer"><span>Invited to the team?</span><a href="<?=e(url('register'))?>">Create your account <?=ui_icon('arrow')?></a></div>
+  </div></section>
+ </main><footer class="auth-bottom">Grocery <span>Inventory &amp; sales</span></footer></body></html><?php
+}
+function page_description(string $page): string {
+ return [
+  'dashboard'=>'A look at today’s sales and the stock that needs attention.',
+  'products'=>'Keep your catalogue, prices, and reorder levels up to date.',
+  'product_categories'=>'Organize products into useful groups.', 'units'=>'Set the units used to sell and count your products.',
+  'suppliers'=>'Your delivery sources and contact information.',
+  'stock'=>'Current quantities, selling prices, and stock status.',
+  'movements'=>'Follow every delivery, sale, return, and adjustment.',
+  'reports'=>'Review your sales, refunds, and receiving for a selected period.',
+  'users'=>'Invite staff and manage access to your store.',
+  'activity'=>'A record of account changes and posted transactions.',
+  'history'=>'Find and review your store’s posted transactions.',
+  'new'=>'Enter the details below and review them before posting.',
+  'detail'=>'Your saved transaction and its item details.',
+  'register'=>'Manage access to your store.',
+ ][$page]??'';
 }
 function layout_start(string $title,array $u): void {
  global $config;
- $nav=[['dashboard','Overview'],['new','Checkout',['type'=>'sale']],['history','Sales',['type'=>'sale']],['stock','Stock on hand'],['movements','Stock movements']];
- if(owner($u)) $nav=array_merge($nav,[['products','Products'],['product_categories','Categories'],['units','Units'],['suppliers','Suppliers'],['history','Receiving',['type'=>'purchase']],['history','Returns',['type'=>'return']],['history','Adjustments',['type'=>'adjustment']],['reports','Reports'],['users','Staff accounts'],['activity','Activity history']]);
- ?><!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title><?=e($title)?> · Grocery</title><link rel="stylesheet" href="assets/app.css"><script src="assets/app.js" defer></script></head><body><aside class="sidebar"><a class="brand" href="<?=url('dashboard')?>">▦ <span>GROCERY<small>STORE MANAGEMENT</small></span></a><div class="store-name"><?=e($config['store_name'])?></div><nav><?php foreach($nav as $n) { $active=($_GET['page']??'dashboard')===$n[0] && (!isset($n[2]) || ($_GET['type']??'sale')===$n[2]['type']); echo '<a '.($active?'class="active" ':'').'href="'.e(url($n[0],$n[2]??[])).'">'.e($n[1]).'</a>'; } ?></nav><div class="account"><strong><?=e($u['full_name'])?></strong><small><?=e($u['role_name'])?></small><form method="post" action="index.php"><?=csrf()?><input type="hidden" name="action" value="logout"><button class="text-button">Sign out</button></form></div></aside><main class="workspace"><header class="topbar"><span>Workspace / <?=e($title)?></span><span><?=e(date('D, M j, Y'))?></span></header><div class="content"><div class="page-heading"><div><p class="eyebrow">NEIGHBORHOOD OPERATIONS</p><h1><?=e($title)?></h1></div><a class="button" href="<?=e(url('new',['type'=>'sale']))?>">＋ New sale</a></div><?php
+ $page=(string)($_GET['page']??'dashboard'); $type=(string)($_GET['type']??'sale');
+ $groups=[
+  'Workspace'=>[['dashboard','Overview','overview',[]],['new','Checkout','cart',['type'=>'sale']],['history','Sales','receipt',['type'=>'sale']]],
+  'Inventory'=>[], 'Catalogue'=>[], 'Management'=>[],
+ ];
+ if(owner($u)) $groups['Inventory'][]=['products','Products','box',[]];
+ $groups['Inventory'][]=['stock','Stock on hand','stock',[]];
+ $groups['Inventory'][]=['movements','Movements','movement',[]];
+ if(owner($u)) {
+  $groups['Inventory']=array_merge($groups['Inventory'],[['history','Receiving','truck',['type'=>'purchase']],['history','Returns','return',['type'=>'return']],['history','Adjustments','adjust',['type'=>'adjustment']]]);
+  $groups['Catalogue']=[['product_categories','Categories','tag',[]],['units','Units','ruler',[]],['suppliers','Suppliers','supplier',[]]];
+  $groups['Management']=[['reports','Reports','chart',[]],['users','Staff accounts','users',[]],['activity','Activity history','activity',[]]];
+ }
+ $parts=preg_split('/\s+/u',trim($u['full_name'])); $initials=mb_strtoupper(mb_substr($parts[0]??'',0,1).(count($parts)>1?mb_substr(end($parts),0,1):''));
+ ?><!doctype html><html lang="en"><head><?php ui_head($title); ?></head><body class="app-shell" data-page="<?=e($page)?>">
+ <a class="skip-link" href="#main-content">Skip to content</a>
+ <aside class="sidebar" id="app-sidebar" aria-label="Store navigation">
+  <a class="sidebar-brand" href="<?=e(url('dashboard'))?>"><span class="brand-mark"><?=ui_icon('store')?></span><span class="brand-copy">Grocery<span>Inventory &amp; sales</span></span></a>
+  <button class="sidebar-close icon-button" type="button" data-nav-close aria-label="Close navigation"><?=ui_icon('close')?></button>
+  <div class="store-switcher"><span class="store-dot" aria-hidden="true"></span><span><?=e($config['store_name'])?></span></div>
+  <nav aria-label="Main navigation">
+   <?php foreach($groups as $group=>$links) { if(!$links) continue; echo '<div class="nav-group"><p class="nav-label">'.e($group).'</p>';
+    foreach($links as [$target,$label,$icon,$params]) {
+     $active=$page===$target&&(!isset($params['type'])||$type===$params['type']);
+     if(in_array($page,['detail','new'],true)&&$target==='history'&&isset($params['type'])&&$params['type']===$type&&($type!=='sale'||$page==='detail')) $active=true;
+     echo '<a '.($active?'class="active" aria-current="page" ':'').'href="'.e(url($target,$params)).'"><span class="nav-icon">'.ui_icon($icon).'</span><span class="nav-text">'.e($label).'</span></a>';
+    } echo '</div>';
+   } ?>
+  </nav>
+  <div class="account"><span class="avatar" aria-hidden="true"><?=e($initials)?></span><div class="account-copy"><strong><?=e($u['full_name'])?></strong><small><?=e($u['role_name'])?></small></div><form class="account-actions" method="post" action="index.php"><?=csrf()?><input type="hidden" name="action" value="logout"><button class="icon-button" aria-label="Sign out" title="Sign out"><?=ui_icon('logout')?></button></form></div>
+ </aside>
+ <button class="sidebar-backdrop" type="button" data-nav-close aria-label="Close navigation" hidden></button>
+ <main class="workspace" id="main-content" tabindex="-1"><header class="topbar"><div class="topbar-left"><button class="menu-toggle icon-button" type="button" data-menu-toggle aria-controls="app-sidebar" aria-expanded="false" aria-label="Open navigation"><?=ui_icon('menu')?></button><div class="breadcrumb"><span>Workspace</span><?=ui_icon('chevron')?><strong><?=e($title)?></strong></div></div><div class="topbar-right"><time datetime="<?=e(date('Y-m-d'))?>"><?=e(date('D, j M Y'))?></time><?php theme_toggle(); ?></div></header>
+ <div class="content"><div class="page-heading"><div><h1><?=e($title)?></h1><p class="page-description"><?=e(page_description($page))?></p></div><div class="heading-actions"><?php if(!($page==='new'&&$type==='sale')) { ?><a class="button" href="<?=e(url('new',['type'=>'sale']))?>"><?=ui_icon('plus')?> New sale</a><?php } ?></div></div><?php
 }
-function layout_end(): void { echo '</div><footer>Small Grocery Inventory and Sales System · One store, everything in view.</footer></main></body></html>'; }
+function layout_end(): void { echo '</div><footer><span>Grocery</span><span>Inventory &amp; sales</span></footer></main></body></html>'; }
 function table_view(array $headers,array $data): void {
  echo '<div class="table-wrap"><table><thead><tr>'; foreach($headers as $h) echo '<th>'.e($h).'</th>'; echo '</tr></thead><tbody>';
  if(!$data) echo '<tr><td colspan="'.count($headers).'" class="empty">No records yet. Your saved records will appear here.</td></tr>';
@@ -59,17 +129,50 @@ function master_page(string $table,array $u): void {
  table_view($headers,$display); page_links($count,$pg);
 }
 function dashboard(array $u): void {
- $scope=owner($u)?'':' AND created_by='.(int)$u['id']; $today=date('Y-m-d');
- $sales=one("SELECT COALESCE(SUM(total_amount),0) amount, COUNT(*) count FROM sales WHERE posted_at>=? AND posted_at<? $scope",[$today,date('Y-m-d',strtotime('+1 day'))]);
- $refund=owner($u)?query('SELECT COALESCE(SUM(total_amount),0) FROM sales_returns WHERE posted_at>=? AND posted_at<?',[$today,date('Y-m-d',strtotime('+1 day'))])->fetchColumn():null;
- $low=query('SELECT COUNT(*) FROM products WHERE is_active=1 AND stock_qty<=reorder_level')->fetchColumn();
- echo '<section class="hero"><div><p class="eyebrow">A GOOD DAY STARTS WITH A CLEAR VIEW</p><h2>Hello, '.e(explode(' ',$u['full_name'])[0]).'.</h2><p>Here’s what’s happening in your store today.</p></div><div class="hero-mark">▦</div></section><section class="cards">';
- $cards=[['Sales today',money($sales['amount'])],['Completed sales',e($sales['count'])],['Low / out of stock',e($low)]];
- if(owner($u)) { $cards[]=['Refunds today',money($refund)]; $cards[]=['Net cash takings',money(decimal(cents($sales['amount'])-cents($refund)))]; }
- foreach($cards as [$l,$v]) echo '<article class="stat"><span>'.e($l).'</span><strong>'.$v.'</strong><small>Based on saved records</small></article>'; echo '</section><div class="dashboard-grid"><section class="panel"><h2>Last seven days</h2><p class="muted">Daily gross sales'.(owner($u)?' and refunds':' · your sales').'</p><div class="chart">';
- for($i=6;$i>=0;$i--) { $day=date('Y-m-d',strtotime("-$i days")); $next=date('Y-m-d',strtotime($day.' +1 day')); $s=query("SELECT COALESCE(SUM(total_amount),0) FROM sales WHERE posted_at>=? AND posted_at<? $scope",[$day,$next])->fetchColumn(); $r=owner($u)?query('SELECT COALESCE(SUM(total_amount),0) FROM sales_returns WHERE posted_at>=? AND posted_at<?',[$day,$next])->fetchColumn():0; echo '<div class="chart-row"><span>'.e(date('D',strtotime($day))).'</span><meter min="0" max="'.e(max(100,(float)$s,(float)$r)).'" value="'.e($s).'">'.e($s).'</meter><strong>'.money($s).'</strong>'.(owner($u)?'<small>Refund '.money($r).'</small>':'').'</div>'; } echo '</div></section><section class="panel"><h2>Stock needs attention</h2>';
- table_view(['Product','Available'],array_map(fn($p)=>[e($p['product_name']),'<span class="badge">'.e($p['stock_qty']).'</span>'],rows('SELECT * FROM products WHERE is_active=1 AND stock_qty<=reorder_level ORDER BY stock_qty LIMIT 6'))); echo '<a href="'.url('stock',['q'=>'','low'=>1]).'">View inventory →</a></section></div><section class="panel"><h2>Recent sales</h2>';
- $recent=rows("SELECT * FROM sales WHERE 1=1 $scope ORDER BY id DESC LIMIT 5"); table_view(['Receipt','Date','Total'],array_map(fn($r)=>['<a href="'.e(url('detail',['type'=>'sale','id'=>$r['id']])).'">'.e($r['document_no']).'</a>',e($r['posted_at']),money($r['total_amount'])],$recent)); echo '</section>';
+ $isOwner=owner($u); $scope=$isOwner?'':' AND created_by='.(int)$u['id']; $today=date('Y-m-d'); $tomorrow=date('Y-m-d',strtotime('+1 day'));
+ $sales=one("SELECT COALESCE(SUM(total_amount),0) amount,COUNT(*) count FROM sales WHERE posted_at>=? AND posted_at<? $scope",[$today,$tomorrow]);
+ $refund=$isOwner?query('SELECT COALESCE(SUM(total_amount),0) FROM sales_returns WHERE posted_at>=? AND posted_at<?',[$today,$tomorrow])->fetchColumn():'0.00';
+ $low=(int)query('SELECT COUNT(*) FROM products WHERE is_active=1 AND stock_qty<=reorder_level')->fetchColumn();
+ $out=(int)query('SELECT COUNT(*) FROM products WHERE is_active=1 AND stock_qty=0')->fetchColumn();
+ $cards=[['Sales today',money($sales['amount']),'Before refunds','receipt',false]];
+ if($isOwner) { $cards[]=['Refunds today',money($refund),'Cash refunds posted today','return',false]; $cards[]=['Net cash takings',money(decimal(cents($sales['amount'])-cents($refund))),'Sales less refunds · not profit','chart',true]; }
+ $cards[]=['Completed sales',e($sales['count']),$isOwner?'Receipts posted today':'Your receipts today','cart',false];
+ $cards[]=['Stock alerts',e($low),$out.' out of stock','box',false];
+ echo '<section class="cards" aria-label="Today’s summary">';
+ foreach($cards as [$label,$value,$note,$icon,$featured]) echo '<article class="stat'.($featured?' stat-featured':'').'"><div class="stat-label"><span>'.e($label).'</span><span class="stat-icon">'.ui_icon($icon).'</span></div><strong class="stat-value">'.$value.'</strong><small class="stat-note">'.e($note).'</small></article>';
+ echo '</section>';
+ $start=date('Y-m-d',strtotime('-6 days'));
+ $dailySales=[]; foreach(rows("SELECT DATE(posted_at) day,SUM(total_amount) amount FROM sales WHERE posted_at>=? AND posted_at<? $scope GROUP BY DATE(posted_at)",[$start,$tomorrow]) as $r) $dailySales[$r['day']]=(float)$r['amount'];
+ $dailyRefunds=[]; if($isOwner) foreach(rows('SELECT DATE(posted_at) day,SUM(total_amount) amount FROM sales_returns WHERE posted_at>=? AND posted_at<? GROUP BY DATE(posted_at)',[$start,$tomorrow]) as $r) $dailyRefunds[$r['day']]=(float)$r['amount'];
+ $days=[]; $max=0;
+ for($i=6;$i>=0;$i--) { $day=date('Y-m-d',strtotime("-$i days")); $s=$dailySales[$day]??0; $r=$dailyRefunds[$day]??0; $days[]=[$day,$s,$r]; $max=max($max,$s,$r); }
+ $scale=max(100,ceil($max/100)*100);
+ echo '<div class="dashboard-grid"><section class="panel"><div class="panel-heading"><div><h2>Sales overview</h2><p class="section-caption">'.e(date('j M',strtotime($start))).' – '.e(date('j M',strtotime($today))).($isOwner?' · last 7 days':' · your last 7 days').'</p></div><div class="chart-legend"><span><i class="legend-dot" aria-hidden="true"></i>Sales</span>'.($isOwner?'<span><i class="legend-dot refunds" aria-hidden="true"></i>Refunds</span>':'').'</div></div>';
+ echo '<div class="trend-chart"><svg viewBox="0 0 760 245" role="img" aria-labelledby="sales-chart-title sales-chart-description"><title id="sales-chart-title">Sales over the last seven days</title><desc id="sales-chart-description">Daily sales'.($isOwner?' and refunds':'').' on a shared scale. Exact figures are available in the table below.</desc>';
+ for($i=0;$i<=4;$i++) { $y=25+$i*40; echo '<path class="chart-grid" d="M64 '.$y.'H744"/><text class="chart-label" x="52" y="'.($y+4).'" text-anchor="end">'.e(number_format($scale*(4-$i)/4,0)).'</text>'; }
+ foreach($days as $i=>[$day,$s,$r]) {
+  $x=86+$i*96; $sh=160*$s/$scale; $rh=160*$r/$scale;
+  echo '<g><title>'.e(date('D, j M',strtotime($day)).': sales '.number_format($s,2).($isOwner?', refunds '.number_format($r,2):'')).'</title><rect class="sales-bar" x="'.$x.'" y="'.(185-$sh).'" width="'.($isOwner?22:32).'" height="'.$sh.'" rx="3"/>';
+  if($isOwner) echo '<rect class="refund-bar" x="'.($x+28).'" y="'.(185-$rh).'" width="22" height="'.$rh.'" rx="3"/>';
+  echo '<text class="chart-label" x="'.($x+($isOwner?25:16)).'" y="211" text-anchor="middle">'.e(date('D',strtotime($day))).'</text></g>';
+ }
+ echo '</svg></div><details class="chart-data"><summary>View daily figures</summary>';
+ table_view($isOwner?['Date','Sales','Refunds']:['Date','Sales'],array_map(fn($d)=>$isOwner?[e(date('D, j M',strtotime($d[0]))),money($d[1]),money($d[2])]:[e(date('D, j M',strtotime($d[0]))),money($d[1])],$days)); echo '</details></section>';
+ echo '<section class="panel"><div class="panel-heading"><div><h2>Stock to watch</h2><p class="section-caption">Products at or below their reorder level</p></div><span class="badge'.($low?' badge-warning':' badge-neutral').'">'.$low.'</span></div>';
+ $attention=rows('SELECT * FROM products WHERE is_active=1 AND stock_qty<=reorder_level ORDER BY stock_qty,product_name LIMIT 5');
+ if($attention) table_view(['Product','On hand'],array_map(fn($p)=>['<a href="'.e(url('movements',['product_id'=>$p['id']])).'">'.e($p['product_name']).'</a>','<span class="badge '.($p['stock_qty']==0?'badge-danger':'badge-warning').'">'.e($p['stock_qty']).' left</span>'],$attention));
+ else { $active=(int)query('SELECT COUNT(*) FROM products WHERE is_active=1')->fetchColumn(); echo '<div class="state-empty">'.ui_icon('box').'<strong>'.($active?'Nothing running low':'No active products yet').'</strong><p>'.($active?'Your active products are above their reorder levels.':'Products will appear here when stock needs attention.').'</p></div>'; }
+ echo '<a class="section-link" href="'.e(url('stock',['low'=>1])).'">View stock on hand '.ui_icon('arrow').'</a></section></div>';
+ $recentScope=$isOwner?'':' AND h.created_by='.(int)$u['id'];
+ $recent=rows("SELECT h.*,u.full_name FROM sales h JOIN users u ON u.id=h.created_by WHERE 1=1 $recentScope ORDER BY h.id DESC LIMIT 5");
+ echo '<div class="'.($isOwner?'dashboard-grid':'').'"><section class="panel panel-table"><div class="panel-heading"><div><h2>Recent sales</h2><p class="section-caption">Your latest posted receipts</p></div><a href="'.e(url('history',['type'=>'sale'])).'">View all '.ui_icon('arrow').'</a></div>';
+ table_view(['Receipt','Staff','Amount'],array_map(fn($r)=>['<a href="'.e(url('detail',['type'=>'sale','id'=>$r['id']])).'">'.e($r['document_no']).'</a>',e($r['full_name']),money($r['total_amount'])],$recent)); echo '</section>';
+ if($isOwner) {
+  echo '<section class="panel panel-table"><div class="panel-heading"><div><h2>Recent deliveries</h2><p class="section-caption">Goods received from suppliers</p></div><a href="'.e(url('history',['type'=>'purchase'])).'">View all '.ui_icon('arrow').'</a></div>';
+  $receiving=rows('SELECT h.*,s.supplier_name FROM purchases h JOIN suppliers s ON s.id=h.supplier_id ORDER BY h.id DESC LIMIT 5');
+  table_view(['Delivery','Supplier','Cost'],array_map(fn($r)=>['<a href="'.e(url('detail',['type'=>'purchase','id'=>$r['id']])).'">'.e($r['document_no']).'</a>',e($r['supplier_name']),money($r['total_amount'])],$receiving)); echo '</section>';
+ }
+ echo '</div>';
 }
 function transaction_form(array $u): void {
  $type=(string)($_GET['type']??'sale'); if(!isset(document_types()[$type])) throw new DomainException('Unknown transaction.'); if($type!=='sale') require_owner($u);
@@ -123,12 +226,13 @@ function movements_page(): void {
  if(!$id) return; $p=one('SELECT * FROM products WHERE id=?',[$id]); if(!$p) throw new DomainException('Product not found.'); $data=movement_rows($id); $sum=array_sum(array_column($data,'delta')); echo '<div class="alert '.($sum===(int)$p['stock_qty']?'success':'error').'">Recorded movement balance: '.e($sum).' · Stock on hand: '.e($p['stock_qty']).'</div>'; table_view(['Date','Movement','Document','Quantity change'],array_map(fn($r)=>array_map('e',array_values($r)),$data));
 }
 function reports_page(): void {
- filters(true); [$from,$to,$end]=date_range(); echo '<button class="button secondary print-button">Print report</button><h2>Operational summary</h2><p>'.e($from).' through '.e($to).'</p>';
- $s=query('SELECT COALESCE(SUM(total_amount),0) FROM sales WHERE posted_at>=? AND posted_at<?',[$from,$end])->fetchColumn(); $r=query('SELECT COALESCE(SUM(total_amount),0) FROM sales_returns WHERE posted_at>=? AND posted_at<?',[$from,$end])->fetchColumn(); table_view(['Gross sales','Refunds paid','Net cash takings'],[[money($s),money($r),money(decimal(cents($s)-cents($r)))]]); echo '<p class="muted">Net cash takings are not profit. Refunds follow their posting date.</p><h2>Top-selling products · gross sales</h2>';
+ filters(true); [$from,$to,$end]=date_range(); echo '<div class="toolbar report-toolbar"><button class="button secondary print-button">Print report</button></div><section class="panel"><div class="panel-heading"><div><h2>Operational summary</h2><p class="section-caption">'.e($from).' through '.e($to).'</p></div></div>';
+ $s=query('SELECT COALESCE(SUM(total_amount),0) FROM sales WHERE posted_at>=? AND posted_at<?',[$from,$end])->fetchColumn(); $r=query('SELECT COALESCE(SUM(total_amount),0) FROM sales_returns WHERE posted_at>=? AND posted_at<?',[$from,$end])->fetchColumn(); table_view(['Gross sales','Refunds paid','Net cash takings'],[[money($s),money($r),money(decimal(cents($s)-cents($r)))]]); echo '<p class="muted report-note">Net cash takings are not profit. Refunds follow their posting date.</p></section><section class="panel"><div class="panel-heading"><h2>Top-selling products · gross sales</h2></div>';
  $data=rows('SELECT i.sku_snapshot, i.product_name_snapshot,SUM(i.quantity) quantity,SUM(i.quantity*i.unit_price) amount FROM sale_items i JOIN sales h ON h.id=i.sale_id WHERE h.posted_at>=? AND h.posted_at<? GROUP BY i.product_id,i.sku_snapshot,i.product_name_snapshot ORDER BY quantity DESC LIMIT 20',[$from,$end]); table_view(['Code','Product','Units sold','Gross amount'],array_map(fn($r)=>[e($r['sku_snapshot']),e($r['product_name_snapshot']),e($r['quantity']),money($r['amount'])],$data));
- echo '<h2>Received goods by supplier</h2>'; $data=rows('SELECT s.supplier_name,COUNT(*) deliveries,SUM(h.total_amount) amount FROM purchases h JOIN suppliers s ON s.id=h.supplier_id WHERE h.posted_at>=? AND h.posted_at<? GROUP BY s.id,s.supplier_name ORDER BY amount DESC',[$from,$end]); table_view(['Supplier','Deliveries','Received cost'],array_map(fn($r)=>[e($r['supplier_name']),e($r['deliveries']),money($r['amount'])],$data)); echo '<p>For receipt and refund details, use the date-filtered Sales and Returns histories. Current inventory and product movement reports are available in the sidebar.</p>';
+ echo '</section><section class="panel"><div class="panel-heading"><h2>Received goods by supplier</h2></div>'; $data=rows('SELECT s.supplier_name,COUNT(*) deliveries,SUM(h.total_amount) amount FROM purchases h JOIN suppliers s ON s.id=h.supplier_id WHERE h.posted_at>=? AND h.posted_at<? GROUP BY s.id,s.supplier_name ORDER BY amount DESC',[$from,$end]); table_view(['Supplier','Deliveries','Received cost'],array_map(fn($r)=>[e($r['supplier_name']),e($r['deliveries']),money($r['amount'])],$data)); echo '<p class="muted report-note">For individual records, open Sales or Returns. Stock on hand and Movements show your inventory details.</p></section>';
 }
 function activity_page(): void {
  filters(true); [$from,$to,$end]=date_range(); $params=[$from,$end,'%'.($_GET['q']??'').'%']; $where='l.created_at>=? AND l.created_at<? AND l.description LIKE ?'; $count=(int)query("SELECT COUNT(*) FROM activity_logs l WHERE $where",$params)->fetchColumn(); [$limit,$off,$pg]=pager($count); $data=rows("SELECT l.*,u.full_name FROM activity_logs l JOIN users u ON u.id=l.user_id WHERE $where ORDER BY l.id DESC LIMIT $limit OFFSET $off",$params); table_view(['Date','Staff','Action','Record','Description'],array_map(fn($r)=>[e($r['created_at']),e($r['full_name']),e($r['action']),e($r['record_type'].' #'.$r['record_id']),e($r['description'])],$data)); page_links($count,$pg);
 }
+
 

@@ -8,6 +8,7 @@ The project now has a **working first PHP/MySQL build**. On October 30, the user
 
 ## Project documents
 
+- [UI update and appearance toggle](docs/07-UI-UPDATE.md): redesigned screens, remembered light/dark mode, mobile behavior, and how to upload this update without changing live configuration or database records.
 - [Free live hosting](docs/06-LIVE-HOSTING.md): InfinityFree deployment steps, private live configuration, shared-hosting SQL, first-owner import, and real Gmail OTP verification. No live deployment has been completed yet.
 - [VS Code and phpMyAdmin setup](SETUP-XAMPP.md): install the exported source ZIP and fresh SQL, or apply a database update while preserving existing records. Updated packages are written to `releases/` after system edits.
 - [Gmail OTP setup](docs/05-GMAIL-OTP-SETUP.md): owner invitations, email verification, private sender setup, and migration/testing notes. Gmail credentials still need local configuration for actual delivery.
