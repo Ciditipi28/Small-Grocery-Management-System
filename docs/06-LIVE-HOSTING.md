@@ -44,6 +44,8 @@ If an older export shows a successful import followed by error 1064 near `FOR UP
 
 ## 5. Upload the source
 
+For the simplest upload layout, download `SmallGrocery-htdocs.zip` from `releases/`, extract it on your computer, and upload its contents directly into the domain's `htdocs`. Its root already contains `.htaccess`, `config.php`, `config.hosting.example.php`, `app`, `public`, `vendor`, `database`, `scripts`, and `docs`. It has no extra outer SmallGrocery folder. Preserve an existing server `config.local.php`; it is not included in the ZIP. This package change does not require a database import.
+
 Extract `SmallGrocery-Latest.zip` locally. Use the hosting file manager or FTP to upload the contents of its `SmallGrocery` folder into the website's `htdocs` directory. Include the root `.htaccess` and the `public`, `app`, and `vendor` directories. Keep the relative layout intact. Do not upload the local `var`, `.git`, `releases`, private owner SQL, or database backups.
 
 The entry address in this layout is **https://ciditipi.free.je/public/**. Upload the contents inside the extracted `SmallGrocery` folder directly into `htdocs`, so `public` is directly inside `htdocs`. The root `.htaccess` redirects the website root there and denies direct access to private project directories. Before adding credentials, verify that requesting `/database/schema.sql`, `/app/functions.php`, and `/config.php` returns a denial, not file contents. If a host ignores `.htaccess`, place private directories outside the web root or configure a document root pointing to `public` before proceeding.

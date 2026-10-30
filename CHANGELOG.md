@@ -1,5 +1,11 @@
 # System changes
 
+## October 30, 2026 — Direct htdocs upload package
+
+- Added `SmallGrocery-htdocs.zip` with application folders and `.htaccess` directly at the ZIP root, without an extra project-folder wrapper.
+- Added archive comparison checks and excluded private config/owner SQL filenames at every packaged directory level.
+- No database migration or reimport is required. Existing server `config.local.php` must be preserved.
+
 ## October 30, 2026 — phpMyAdmin first-owner import fix
 
 - Changed the owner-role lock query to SELECT INTO a session variable with LIMIT before FOR UPDATE. It produces no result grid for phpMyAdmin to paginate.

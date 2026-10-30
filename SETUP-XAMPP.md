@@ -4,6 +4,7 @@ For a free online server, use [the live-hosting guide](docs/06-LIVE-HOSTING.md),
 
 ## Files to use
 
+- `SmallGrocery-htdocs.zip`: hosting-upload variant. Extract it locally and upload its contents directly into the domain's `htdocs`; there is no outer SmallGrocery folder. It contains the same checked source as the project ZIP, with private configuration excluded.
 - `SmallGrocery-Latest.zip`: the current source package. Extract its `SmallGrocery` folder and open that whole folder in VS Code.
 - `mini_grocery_fresh.sql`: fresh installation only. Creates the `mini_grocery` database, 16 tables, roles, categories, and units. It does not include accounts, passwords, inventory, sales, or Gmail settings.
 - `mini_grocery_update_002_email_otp.sql`: an update for an existing grocery database that needs the email OTP feature. Select your existing database before importing it. It adds missing email fields and the invitation table, preserving records. It is safe to rerun.

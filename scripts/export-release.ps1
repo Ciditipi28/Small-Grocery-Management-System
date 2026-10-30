@@ -44,7 +44,7 @@ foreach ($directory in @('app','public','database','scripts','tests','docs','ven
     $source = Join-Path $projectRoot $directory
     foreach ($file in Get-ChildItem -LiteralPath $source -File -Recurse) {
         $relative = $file.FullName.Substring($projectRoot.Length + 1)
-        if ($relative -match '(^|[\\/])__pycache__([\\/]|$)' -or $file.Extension -eq '.pyc') { continue }
+        if ($relative -match '(^|[\\/])__pycache__([\\/]|$)' -or $file.Extension -eq '.pyc' -or $file.Name -in @('config.local.php','first-owner.sql')) { continue }
         $destination = Join-Path $packageRoot $relative
         New-Item -ItemType Directory -Path (Split-Path -Parent $destination) -Force | Out-Null
         Copy-Item -LiteralPath $file.FullName -Destination $destination
@@ -61,7 +61,12 @@ $versionedZip = Join-Path $releaseRoot ('SmallGrocery-' + $stamp + '.zip')
 [IO.Compression.ZipFile]::CreateFromDirectory($stageRoot,$versionedZip)
 $latestZip = Join-Path $releaseRoot 'SmallGrocery-Latest.zip'
 Copy-Item -LiteralPath $versionedZip -Destination $latestZip -Force
+$hostingVersionedZip = Join-Path $releaseRoot ('SmallGrocery-htdocs-' + $stamp + '.zip')
+[IO.Compression.ZipFile]::CreateFromDirectory($packageRoot,$hostingVersionedZip)
+$hostingZip = Join-Path $releaseRoot 'SmallGrocery-htdocs.zip'
+Copy-Item -LiteralPath $hostingVersionedZip -Destination $hostingZip -Force
 Write-Output "Project ZIP: $latestZip"
+Write-Output "Direct htdocs ZIP: $hostingZip"
 Write-Output "Versioned ZIP: $versionedZip"
 Write-Output "Fresh SQL: $(Join-Path $releaseRoot 'mini_grocery_fresh.sql')"
 Write-Output "Update SQL: $(Join-Path $releaseRoot 'mini_grocery_update_002_email_otp.sql')"
