@@ -8,6 +8,7 @@ New-Item -ItemType Directory -Path $releaseRoot,$packageRoot -Force | Out-Null
 
 # Generate complete SQL imports from the canonical schema/migration.
 $schema = [IO.File]::ReadAllText((Join-Path $projectRoot 'database\schema.sql'))
+$hosting = "-- FRESH HOSTING INSTALL ONLY. Select the database created by your hosting control panel first.`n-- No CREATE DATABASE or USE: compatible with provider-prefixed database names.`n-- Contains schema and lookup seeds only; no accounts or business records.`n" + $schema
 $fresh = @'
 -- FRESH INSTALL ONLY. Contains schema and lookup seeds, no accounts or business data.
 -- Do not import over an existing working grocery database.
@@ -32,11 +33,12 @@ DEALLOCATE PREPARE grocery_update;
 '@ + [IO.File]::ReadAllText((Join-Path $projectRoot 'database\migrations\002-email-registration.sql'))
 foreach ($targetRoot in @((Join-Path $projectRoot 'database'),$releaseRoot)) {
     [IO.File]::WriteAllText((Join-Path $targetRoot 'mini_grocery_fresh.sql'),$fresh,$utf8)
+    [IO.File]::WriteAllText((Join-Path $targetRoot 'mini_grocery_hosting_schema.sql'),$hosting,$utf8)
     [IO.File]::WriteAllText((Join-Path $targetRoot 'mini_grocery_update_002_email_otp.sql'),$update,$utf8)
 }
 
 # Allowlisted sources: local config, var/, releases/, .git/ never enter the package.
-$rootFiles = @('.htaccess','.gitignore','AGENTS.md','README.md','SETUP-XAMPP.md','CHANGELOG.md','config.php','config.local.example.php')
+$rootFiles = @('.htaccess','.gitignore','AGENTS.md','README.md','SETUP-XAMPP.md','CHANGELOG.md','config.php','config.local.example.php','config.hosting.example.php')
 foreach ($relative in $rootFiles) { Copy-Item -LiteralPath (Join-Path $projectRoot $relative) -Destination (Join-Path $packageRoot $relative) }
 foreach ($directory in @('app','public','database','scripts','tests','docs','vendor')) {
     $source = Join-Path $projectRoot $directory

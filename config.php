@@ -4,6 +4,7 @@ return array_replace([
     'db_name' => 'mini_grocery', 'db_user' => 'root', 'db_password' => '',
     'store_name' => 'Neighborhood Mini Grocery',
     'timezone' => 'Asia/Manila', 'currency' => '',
+    'require_https' => false,
     'mail_smtp_host' => 'smtp.gmail.com', 'mail_smtp_port' => 587,
     'mail_smtp_security' => 'tls',
     'mail_smtp_username' => getenv('GROCERY_SMTP_USERNAME') ?: '',

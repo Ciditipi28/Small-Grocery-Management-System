@@ -12,8 +12,8 @@ with zipfile.ZipFile(archive) as z:
         relative=name.removeprefix('SmallGrocery/')
         assert relative!='config.local.php',name
         assert relative.split('/')[0] not in {'var','releases','.git'},name
-        assert 'preview-access' not in name and not name.endswith('.log'),name
-    for required in ['public/index.php','.htaccess','database/mini_grocery_fresh.sql','database/mini_grocery_update_002_email_otp.sql','scripts/create-owner.php','scripts/export-release.ps1','SETUP-XAMPP.md','vendor/phpmailer/LICENSE']:
+        assert 'preview-access' not in name and not name.endswith('.log') and not name.endswith('/first-owner.sql'),name
+    for required in ['public/index.php','.htaccess','config.hosting.example.php','database/mini_grocery_fresh.sql','database/mini_grocery_hosting_schema.sql','database/mini_grocery_update_002_email_otp.sql','scripts/create-owner.php','scripts/export-first-owner.php','scripts/export-release.ps1','SETUP-XAMPP.md','vendor/phpmailer/LICENSE']:
         assert 'SmallGrocery/'+required in names,required
     manifest=json.loads(z.read(names['SmallGrocery/RELEASE-MANIFEST.json']))
     expected=set()
@@ -24,6 +24,6 @@ with zipfile.ZipFile(archive) as z:
         assert len(data)==item['bytes'],path
         expected.add(path)
     assert expected|{'SmallGrocery/RELEASE-MANIFEST.json'}==set(names)
-    for name in ['mini_grocery_fresh.sql','mini_grocery_update_002_email_otp.sql']:
+    for name in ['mini_grocery_fresh.sql','mini_grocery_hosting_schema.sql','mini_grocery_update_002_email_otp.sql']:
         assert z.read(names['SmallGrocery/database/'+name])==(archive.parent/name).read_bytes(),name
 print(f'PASS ZIP: {len(manifest["files"])} source files match their hashes; private/runtime data excluded; standalone SQL matches packaged SQL.')

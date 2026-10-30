@@ -4,6 +4,10 @@ Updated: October 30, 2026
 
 This is a working local development version for one store. It is not a claim that all assignment submissions or final acceptance work are complete.
 
+Hosting preparation update: InfinityFree has been researched as a compatible free PHP/MySQL/Gmail-SMTP candidate. Hosting configuration, optional HTTPS enforcement, a provider-neutral schema import, and a private first-owner SQL exporter are prepared. The app is not deployed; a hosting account/public URL, server credentials, and real Gmail delivery verification are still pending. See `06-LIVE-HOSTING.md`.
+
+The 12 hosting-preparation checks, 27 registration checks with local SMTP, release SQL checks, authenticated page/access checks, and archive privacy/hash checks passed locally. No actual hosting account or Gmail inbox was used for those checks.
+
 ## Implemented
 
 - Sixteen InnoDB tables (original 15 plus account invitations) with primary/foreign keys, unique document numbers, decimal money, positive-quantity/nonnegative-stock constraints, and historical sale price/name/SKU values.

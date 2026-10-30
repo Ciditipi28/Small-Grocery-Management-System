@@ -1,5 +1,7 @@
 # Put the system in VS Code and phpMyAdmin
 
+For a free online server, use [the live-hosting guide](docs/06-LIVE-HOSTING.md), `config.hosting.example.php`, and `mini_grocery_hosting_schema.sql`. The XAMPP instructions below configure this computer only.
+
 ## Files to use
 
 - `SmallGrocery-Latest.zip`: the current source package. Extract its `SmallGrocery` folder and open that whole folder in VS Code.

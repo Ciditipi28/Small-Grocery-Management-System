@@ -1,5 +1,13 @@
 # System changes
 
+## October 30, 2026 — Free hosting preparation
+
+- Identified InfinityFree as a compatible free PHP/MySQL hosting candidate with external Gmail SMTP support; account creation, hosting configuration, and real delivery verification remain pending.
+- Added a hosting configuration template and opt-in HTTPS enforcement. Local XAMPP behavior is preserved.
+- Added shared-hosting schema SQL without CREATE DATABASE/USE, and a local exporter for a private first-owner SQL import on hosts without remote CLI access.
+- Added a deployment guide and isolated hosting-preparation tests. Private first-owner SQL stays under ignored var/ and is excluded from releases.
+- No database migration is needed for an already migrated local 16-table installation. A new live database imports the hosting schema and its separately generated private owner SQL.
+
 ## October 30, 2026 — Git preparation
 
 - Excluded private `config.local.php` files at every folder level, including accidental copies under vendor directories.
